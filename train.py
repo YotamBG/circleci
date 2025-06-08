@@ -5,18 +5,16 @@ import pickle
 import os
 
 # Load the data from the build step
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-with open(os.path.join(script_dir, 'training_data/train_images.pkl'), 'rb') as f:
+with open('./training_data/train_images.pkl', 'rb') as f:
     train_images = pickle.load(f)
 
-with open(os.path.join(script_dir, 'training_data/train_labels.pkl'), 'rb') as f:
+with open('./training_data/train_labels.pkl', 'rb') as f:
     train_labels = pickle.load(f)
 
-with open(os.path.join(script_dir, 'training_data/test_images.pkl'), 'rb') as f:
+with open('./training_data/test_images.pkl', 'rb') as f:
     test_images = pickle.load(f)
 
-with open(os.path.join(script_dir, 'training_data/test_labels.pkl'), 'rb') as f:
+with open('./training_data/test_labels.pkl', 'rb') as f:
     test_labels = pickle.load(f)
 
 # Define a simple CNN model
@@ -41,5 +39,5 @@ test_loss, test_acc = model.evaluate(test_images, test_labels)
 print(f'\nTest accuracy: {test_acc}')
 
 # Save the trained model
-model.save(os.path.join(script_dir, 'training_data/trained_model'))
+model.save(os.path.join('training_data/trained_model'))
 print("Model training complete. Saved to 'training_data/trained_model'.")
