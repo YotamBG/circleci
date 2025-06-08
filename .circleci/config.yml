@@ -19,10 +19,10 @@ jobs:
       - checkout
       - install-deps
       - run:
-          name: Run prepare.py
+          name: Run 1_build.py
           command: |
             . venv/bin/activate
-            python prepare.py
+            python ml/1_build.py
       - persist_to_workspace:
           root: .
           paths:
@@ -37,10 +37,10 @@ jobs:
           at: .
       - install-deps
       - run:
-          name: Run train.py
+          name: Run 2_train.py
           command: |
             . venv/bin/activate
-            python train.py
+            python ml/2_train.py
       - persist_to_workspace:
           root: .
           paths:
@@ -55,10 +55,10 @@ jobs:
           at: .
       - install-deps
       - run:
-          name: Run tests
+          name: Run 3_test.py
           command: |
             . venv/bin/activate
-            pytest tests/
+            pytest ml/3_test.py
 
   package:
     docker:
@@ -68,10 +68,10 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Package the model
+          name: Run 4_package.py
           command: |
             . venv/bin/activate
-            python -m model_packager --input-dir training_data --output-dir packaged_model
+            python ml/4_package.py
 
 workflows:
   ml_pipeline:

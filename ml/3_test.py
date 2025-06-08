@@ -1,3 +1,5 @@
+# Content moved from tests/test_serving.py
+
 import requests
 import json
 
