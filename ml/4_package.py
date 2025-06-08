@@ -2,11 +2,14 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import os
+import pickle
 
 # Load preprocessed data
-with np.load('data_prepared.npz') as data:
-    train_images = data['train_images']
-    train_labels = data['train_labels']
+with open('training_data/train_images.pkl', 'rb') as f:
+    train_images = pickle.load(f)
+
+with open('training_data/train_labels.pkl', 'rb') as f:
+    train_labels = pickle.load(f)
 
 # Define a simple CNN model
 model = keras.Sequential([
@@ -26,6 +29,7 @@ model.fit(train_images, train_labels, epochs=1)
 
 # Simplify the model export process
 script_dir = os.path.dirname(os.path.abspath(__file__))
-output_dir = os.path.join(script_dir, 'training_data/trained_model')
-model.save(output_dir)
-print(f"Model exported to '{output_dir}'.")
+# Save in .keras native format:
+output_path = os.path.join(script_dir, 'training_data', 'trained_model.keras')
+model.save(output_path)
+print(f"Model exported to '{output_path}'.")
