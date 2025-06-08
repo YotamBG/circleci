@@ -16,10 +16,8 @@ train_images = train_images.reshape(train_images.shape[0], 28, 28, 1)
 test_images = test_images.reshape(test_images.shape[0], 28, 28, 1)
 
 # Save preprocessed data using pickle
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Ensure the 'training_data' directory exists
-training_data_dir = os.path.join(script_dir, 'training_data')
+# Update the path to create 'training_data' in the root of the workspace
+training_data_dir = './training_data'
 os.makedirs(training_data_dir, exist_ok=True)
 
 # Add verbose logging

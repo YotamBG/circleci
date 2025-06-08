@@ -44,7 +44,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - model_export
+            - training_data/trained_model.keras
 
   test:
     docker:
@@ -71,7 +71,7 @@ jobs:
           name: Package the model
           command: |
             . venv/bin/activate
-            python -m model_packager --input-dir model_export --output-dir packaged_model
+            python -m model_packager --input-dir training_data --output-dir packaged_model
 
 workflows:
   ml_pipeline:
