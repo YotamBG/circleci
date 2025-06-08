@@ -1,16 +1,84 @@
 version: 2.1
 
+commands:
+  install-deps:
+    steps:
+      - run:
+          name: Install Python dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
+
 jobs:
-  say-hello:
+  prepare:
     docker:
-      - image: cimg/base:current
+      - image: cimg/python:3.11
     steps:
       - checkout
+      - install-deps
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Run prepare.py
+          command: |
+            . venv/bin/activate
+            python prepare.py
+
+  train:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - install-deps
+      - run:
+          name: Run train.py
+          command: |
+            . venv/bin/activate
+            python train.py
+      - persist_to_workspace:
+          root: .
+          paths:
+            - model_export
+
+  test:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - install-deps
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            pytest tests/
+
+  package:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Package the model
+          command: |
+            . venv/bin/activate
+            python -m model_packager --input-dir model_export --output-dir packaged_model
 
 workflows:
-  say-hello-workflow:
+  ml_pipeline:
     jobs:
-      - say-hello
+      - prepare
+      - train:
+          requires:
+            - prepare
+      - test:
+          requires:
+            - train
+      - package:
+          requires:
+            - train
