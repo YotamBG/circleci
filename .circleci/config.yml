@@ -4,7 +4,7 @@ commands:
   install-deps:
     steps:
       - run:
-          name: Create & populate venv
+          name: Create virtualenv & install deps
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -12,7 +12,7 @@ commands:
             pip install -r requirements.txt
 
 jobs:
-  prepare:
+  build:
     docker:
       - image: cimg/python:3.11
     steps:
@@ -23,7 +23,6 @@ jobs:
           command: |
             . venv/bin/activate
             python ml/1_build.py
-      # persist both your venv *and* the training_data folder
       - persist_to_workspace:
           root: .
           paths:
@@ -34,9 +33,8 @@ jobs:
     docker:
       - image: cimg/python:3.11
     steps:
-      - attach_workspace:
-          at: .
-      # no install-deps here—venv is already in workspace
+      - checkout
+      - attach_workspace: { at: . }
       - run:
           name: Run 2_train.py
           command: |
@@ -45,15 +43,15 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - training_data
             - venv
+            - training_data
 
   test:
     docker:
       - image: cimg/python:3.11
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
+      - attach_workspace: { at: . }
       - run:
           name: Run 3_test.py
           command: |
@@ -64,8 +62,8 @@ jobs:
     docker:
       - image: cimg/python:3.11
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
+      - attach_workspace: { at: . }
       - run:
           name: Run 4_package.py
           command: |
@@ -75,10 +73,10 @@ jobs:
 workflows:
   ml_pipeline:
     jobs:
-      - prepare
+      - build
       - train:
           requires:
-            - prepare
+            - build
       - test:
           requires:
             - train
