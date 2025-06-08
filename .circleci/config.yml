@@ -4,7 +4,7 @@ commands:
   install-deps:
     steps:
       - run:
-          name: Install Python dependencies
+          name: Create & populate venv
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -23,19 +23,20 @@ jobs:
           command: |
             . venv/bin/activate
             python ml/1_build.py
+      # persist both your venv *and* the training_data folder
       - persist_to_workspace:
           root: .
           paths:
+            - venv
             - training_data
 
   train:
     docker:
       - image: cimg/python:3.11
     steps:
-      - checkout
       - attach_workspace:
           at: .
-      - install-deps
+      # no install-deps here—venv is already in workspace
       - run:
           name: Run 2_train.py
           command: |
@@ -44,16 +45,15 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - training_data/trained_model.keras
+            - training_data
+            - venv
 
   test:
     docker:
       - image: cimg/python:3.11
     steps:
-      - checkout
       - attach_workspace:
           at: .
-      - install-deps
       - run:
           name: Run 3_test.py
           command: |
@@ -64,7 +64,6 @@ jobs:
     docker:
       - image: cimg/python:3.11
     steps:
-      - checkout
       - attach_workspace:
           at: .
       - run:
