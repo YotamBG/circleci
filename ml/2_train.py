@@ -38,7 +38,7 @@ model.fit(train_images, train_labels, epochs=epochs)
 test_loss, test_acc = model.evaluate(test_images, test_labels)
 print(f'\nTest accuracy: {test_acc}')
 
-# Save the model using tf.keras.models.save_model
+# Save the model using the new .keras format
 model_save_path = os.path.join('./training_data/trained_model.keras')
 tf.keras.models.save_model(model, filepath=model_save_path)
 print(f"Model training complete. Saved to '{model_save_path}'.")

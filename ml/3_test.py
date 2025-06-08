@@ -1,36 +1,30 @@
-# Content moved from tests/test_serving.py
+# Import dependencies
+import sys
+import os
+import pickle
+import tensorflow as tf
 
-import requests
-import json
+# Get the path to this script
+script_dir = sys.path[0]
 
-def test_predict():
-    # Start the Flask app in the background
-    from multiprocessing import Process
-    from serve_simple import app
+def test_model_accuracy():
+    # Load the model from the previous step
+    model = tf.keras.models.load_model(os.path.join(
+        script_dir, '../training_data/trained_model.keras'))
 
-    server = Process(target=app.run, kwargs={"host": "0.0.0.0", "port": 5000})
-    server.start()
+    # Load the test data from the build step
+    with open(os.path.join(script_dir, '../training_data/test_images.pkl'), 'rb') as f:
+        test_images = pickle.load(f)
 
-    try:
-        # Prepare sample input data
-        sample_data = {
-            "images": [[[0.0] * 28] * 28]  # A single 28x28 grayscale image with all zeros
-        }
+    with open(os.path.join(script_dir, '../training_data/test_labels.pkl'), 'rb') as f:
+        test_labels = pickle.load(f)
 
-        # Send a POST request to the /predict endpoint
-        response = requests.post(
-            "http://0.0.0.0:5000/predict",
-            data=json.dumps(sample_data),
-            headers={"Content-Type": "application/json"},
-        )
+    # Some very basic testing
+    test_loss, test_acc = model.evaluate(test_images, test_labels)
+    print('\nTest accuracy: {}'.format(test_acc))
 
-        # Assert the response is successful and contains predictions
-        assert response.status_code == 200
-        assert "predictions" in response.json()
-        print("Test passed: /predict endpoint is working correctly.")
-    finally:
-        # Terminate the Flask app
-        server.terminate()
-
-if __name__ == "__main__":
-    test_predict()
+    # Fail the test if it is below a certain accuracy
+    # The above model and test should pass, change the below value to 0.9 to see it fail
+    if test_acc < 0.8:
+        # Raising an exception in Python will cause an error code and cause the CircleCI job to fail
+        raise Exception("Test failed")
