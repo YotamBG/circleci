@@ -30,6 +30,10 @@ model.fit(train_images, train_labels, epochs=1)
 # Simplify the model export process
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # Save in .keras native format:
-output_path = os.path.join(script_dir, 'training_data', 'trained_model.keras')
+repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+output_dir = os.path.join(repo_root, 'training_data')
+os.makedirs(output_dir, exist_ok=True)
+
+output_path = os.path.join(output_dir, 'trained_model.keras')
 model.save(output_path)
-print(f"Model exported to '{output_path}'.")
+print(f"Model exported to '{output_path}'")
